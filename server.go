@@ -5,8 +5,13 @@ import (
 	"net/http"
 	"log"
 	"time"
+	"flag"
+	
 	"code.google.com/p/go.net/websocket"
 )
+
+const SERVICE = 8080
+const HOST = ""
 
 var p = Pool {
 	connections: make(map[*Connection]bool),
@@ -41,11 +46,16 @@ func displayStats() {
 }
 
 func main() {
+	var host = flag.String("host", HOST, "Server listen host")
+	var port = flag.Int("port", SERVICE, "Server listen port")
+	
+	flag.Parse()
+
 	go p.Dispatch()
 	go displayStats()
 	
 	http.Handle("/", websocket.Handler(socketHandler))
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(fmt.Sprintf("%s:%d", *host, *port), nil)
 	if err != nil {
 		panic("ListenAndServe: " + err.Error())
 	}
