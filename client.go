@@ -66,7 +66,7 @@ func flood(
 }
 
 func main() {
-	var connections = flag.Int("connexions", CONNECTIONS, "Number of concurent connections")
+	var connections = flag.Int("connections", CONNECTIONS, "Number of concurent connections")
 	var host = flag.String("host", HOST, "Server host")
 	var port = flag.Int("port", SERVICE, "Server port")
 	var origin = flag.String("origin", HOST, "Client origin")
