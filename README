@@ -1,0 +1,10 @@
+gostress - A clients/server websocket
+=====================================
+
+This program tests websocket capability.
+
+server:
+  $> go run pool.go server.go
+
+clients:
+  $> go run pool.go client.go
