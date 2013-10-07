@@ -22,29 +22,34 @@ var p = Pool {
 	unsubscribe: make(chan *Connection),
 }
 
+
+func listen(conn *Connection) {
+	p.subscribe <- conn
+	for {
+		var message string
+		err := websocket.Message.Receive(conn.ws, &message)
+		if err != nil {
+			log.Print("Receive: ", err)
+			break
+		}
+	}
+	p.unsubscribe <- conn
+	conn.ws.Close()
+}
+
 func client(id int, host string, service int, origin string) {
 	orig := fmt.Sprintf("http://%s/", origin)
 	targ := fmt.Sprintf("ws://%s:%d/", host, service)
 	
 	ws, err := websocket.Dial(targ, "", orig)
 	if err != nil {
-		log.Print(err)
-		
+		log.Print("Dial: ", err)
 		return
 	}
-	
 	var conn = &Connection {
 		ws: ws,
         }
-	p.subscribe <- conn
-	for {
-		var message string
-		err = websocket.Message.Receive(ws, &message)
-		if err != nil {
-			break
-		}
-	}
-	p.unsubscribe <- conn
+	go listen(conn)
 }
 
 func flood(
@@ -60,7 +65,7 @@ func flood(
 			if *connid >= connections {
 				break
 			}
-			go client(*connid, host, service, origin)
+			client(*connid, host, service, origin)
 			*connid++
 		}
 		time.Sleep(time.Duration(burst_intv) * time.Millisecond)
@@ -80,6 +85,15 @@ func main() {
 	var connid = 0
 	go p.Dispatch()
 	go flood(&connid, *connections, *host, *port, *origin, *burst_size, *burst_intv);
+
+
+	log.Printf("Wait for initialization...")
+	for {
+		if len(p.connections) >= 1 {
+			break
+		}
+		time.Sleep(200 * time.Millisecond)
+	}
 	
 	for {
 		time.Sleep(1 * time.Second)
