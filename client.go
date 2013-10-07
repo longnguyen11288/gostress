@@ -23,12 +23,18 @@ var p = Pool {
 }
 
 func client(id int, host string, service int, origin string) {
+
+	tr := &http.Transport{MaxIdleConnsPerHost: 6}
+
+
 	orig := fmt.Sprintf("http://%s/", origin)
 	targ := fmt.Sprintf("ws://%s:%d/", host, service)
 	
 	ws, err := websocket.Dial(targ, "", orig)
 	if err != nil {
 		log.Print(err)
+		
+		return
 	}
 	
 	var conn = &Connection {
