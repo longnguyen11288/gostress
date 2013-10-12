@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"time"
 	"flag"
 
@@ -29,7 +28,7 @@ func listen(conn *Connection) {
 		var message string
 		err := websocket.Message.Receive(conn.ws, &message)
 		if err != nil {
-			log.Print("Receive: ", err)
+			fmt.Printf("Receive: %s\n", err)
 			break
 		}
 	}
@@ -43,7 +42,7 @@ func client(id int, host string, service int, origin string) {
 	
 	ws, err := websocket.Dial(targ, "", orig)
 	if err != nil {
-		log.Print("Dial: ", err)
+		fmt.Printf("Dial: %s\n", err)
 		return
 	}
 	var conn = &Connection {
@@ -87,7 +86,7 @@ func main() {
 	go flood(&connid, *connections, *host, *port, *origin, *burst_size, *burst_intv);
 
 
-	log.Printf("Wait for initialization...")
+	fmt.Printf("Wait for initialization...\n")
 	for {
 		if len(p.connections) >= 1 {
 			break
@@ -97,7 +96,7 @@ func main() {
 	
 	for {
 		time.Sleep(1 * time.Second)
-		log.Printf("Connections spawned: %d", connid)
+		fmt.Printf("Connections spawned: %d\n", connid)
 		if len(p.connections) <= 0 {
 			break
 		}

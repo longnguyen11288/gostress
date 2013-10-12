@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"log"
+//	"log"
 	"time"
 	"flag"
 	
@@ -40,7 +40,7 @@ func socketHandler(ws *websocket.Conn) {
 
 func displayStats() {
 	for {
-                log.Printf("Clients: %d", len(p.connections))
+                fmt.Printf("open connections: %d\n", len(p.connections))
 		time.Sleep(1 * time.Second)
         }
 }
