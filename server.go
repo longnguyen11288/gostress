@@ -19,12 +19,16 @@ var p = Pool {
 	unsubscribe: make(chan *Connection),
 }
 
-func feed(conn *Connection, n int) {
-	message := fmt.Sprintf("Chunk: %d", n)
-	err := websocket.Message.Send(conn.ws, message)
-	if err == nil {
+func feed(conn *Connection) {
+	n := 0
+	for {
+		message := fmt.Sprintf("Chunk: %d", n)
+		err := websocket.Message.Send(conn.ws, message)
+		if err != nil {
+			break
+		}
 		time.Sleep(10 * time.Second)
-		feed(conn, n+1)
+		n++
 	}
 }
 
@@ -34,7 +38,7 @@ func socketHandler(ws *websocket.Conn) {
 	}
 	
 	p.subscribe <- conn
-	feed(conn, 1)
+	feed(conn)
 	p.unsubscribe <- conn
 }
 
