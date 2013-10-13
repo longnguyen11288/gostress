@@ -8,9 +8,9 @@ import (
 	"code.google.com/p/go.net/websocket"
 )
 
-const BURST_SIZE = 50
-const BURST_INTV = 500
-const CONNECTIONS = 20000
+const BURST_SIZE = 10
+const BURST_INTV = 100
+const CONNECTIONS = 1000
 const SERVICE = 8080
 const HOST = "127.0.0.1"
 const ORIGIN = "127.0.0.1"
