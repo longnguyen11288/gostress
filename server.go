@@ -12,6 +12,7 @@ import (
 
 const SERVICE = 8080
 const HOST = ""
+const FEED_INTV = 60 * time.Second
 
 var p = Pool {
 	connections: make(map[*Connection]bool),
@@ -27,7 +28,7 @@ func feed(conn *Connection) {
 		if err != nil {
 			break
 		}
-		time.Sleep(10 * time.Second)
+		time.Sleep(FEED_INTV)
 		n++
 	}
 }
