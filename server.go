@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
-//	"log"
+	"log"
 	"time"
 	"flag"
 	
@@ -12,7 +12,7 @@ import (
 
 const SERVICE = 8080
 const HOST = ""
-const FEED_INTV = 60 * time.Second
+const LISTEN_INTV = 400 * time.Millisecond
 
 var p = Pool {
 	connections: make(map[*Connection]bool),
@@ -20,16 +20,36 @@ var p = Pool {
 	unsubscribe: make(chan *Connection),
 }
 
-func feed(conn *Connection) {
-	n := 0
+const DEBUG = true
+func debug(msg string, args ...interface{}) {
+	if DEBUG == true {
+		log.Print(msg, args)
+	}
+}
+
+func serv(conn *Connection) {
 	for {
-		message := fmt.Sprintf("Chunk: %d", n)
-		err := websocket.Message.Send(conn.ws, message)
+		// waiting for a client message
+		var receive string
+		err := websocket.Message.Receive(conn.ws, &receive)
 		if err != nil {
+			fmt.Printf("Receive Error: %s\n", err)
 			break
 		}
-		time.Sleep(FEED_INTV)
-		n++
+		log.Printf("Receives Message: %s", receive)
+		
+		// message receive, responding to the client.
+		message := fmt.Sprintf("Response: [%s]", receive)
+		err = websocket.Message.Send(conn.ws, message)
+		if err != nil {
+			fmt.Printf("Send Error: %s\n", err)
+			break
+		}
+		log.Printf("Response sent.")
+
+		// A client sends a message in minimun every 1s.
+		// so we can wait before check for a new message.
+		time.Sleep(LISTEN_INTV)
 	}
 }
 
@@ -39,13 +59,13 @@ func socketHandler(ws *websocket.Conn) {
 	}
 	
 	p.subscribe <- conn
-	feed(conn)
+	serv(conn)
 	p.unsubscribe <- conn
 }
 
 func displayStats() {
 	for {
-                fmt.Printf("open connections: %d\n", len(p.connections))
+                fmt.Printf("connections: %d\n", len(p.connections))
 		time.Sleep(1 * time.Second)
         }
 }
