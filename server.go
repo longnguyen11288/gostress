@@ -14,18 +14,14 @@ const SERVICE = 8080
 const HOST = ""
 const LISTEN_INTV = 400 * time.Millisecond
 
+const debug = true
+
 var p = Pool {
 	connections: make(map[*Connection]bool),
 	subscribe: make(chan *Connection),
 	unsubscribe: make(chan *Connection),
 }
 
-const DEBUG = true
-func debug(msg string, args ...interface{}) {
-	if DEBUG == true {
-		log.Print(msg, args)
-	}
-}
 
 func serv(conn *Connection) {
 	for {
@@ -36,7 +32,7 @@ func serv(conn *Connection) {
 			fmt.Printf("Receive Error: %s\n", err)
 			break
 		}
-		log.Printf("Receives Message: %s", receive)
+		if debug { log.Printf("Receives Message: %s", receive) }
 		
 		// message receive, responding to the client.
 		message := fmt.Sprintf("Response: [%s]", receive)
@@ -45,7 +41,7 @@ func serv(conn *Connection) {
 			fmt.Printf("Send Error: %s\n", err)
 			break
 		}
-		log.Printf("Response sent.")
+		if debug { log.Printf("Response sent.") }
 
 		// A client sends a message in minimun every 1s.
 		// so we can wait before check for a new message.

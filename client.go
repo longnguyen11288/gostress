@@ -17,7 +17,10 @@ const CONNECTIONS = 1
 const SERVICE = 8080
 const HOST = "127.0.0.1"
 const ORIGIN = "127.0.0.1"
-const MAX_SECOND = 10//7200
+const MAX_SECOND = 7200
+
+
+const debug = true
 
 
 var p = Pool {
@@ -33,17 +36,17 @@ func zap(id int, conn *Connection) {
 		time.Sleep(time.Duration(rand.Intn(MAX_SECOND)) * time.Second)
 		
 		// sending a message...
-		log.Printf("Client %d - Sending %d...", id, n)
+		if debug { log.Printf("Client %d - Sending %d...", id, n) }
 		message := fmt.Sprintf("Client: %d, Zap: %d", id, n)
 		err := websocket.Message.Send(conn.ws, message)		
 		if err != nil {
 			fmt.Printf("Send Error: %s\n", err)
 			break
 		}
-		log.Printf("Client %d - Sending %d [done]", id, n)
+		if debug { log.Printf("Client %d - Sending %d [done]", id, n) }
 		
 		// waiting for the response...
-		log.Printf("Client %d - Waiting response %d...", id, n)
+		if debug { log.Printf("Client %d - Waiting response %d...", id, n) }
 		for {
 			var response string
 			err = websocket.Message.Receive(conn.ws, &response)
@@ -52,13 +55,13 @@ func zap(id int, conn *Connection) {
 			}
 			break
 		}
-		log.Printf("Client %d - Waiting response %d [done]", id, n)
+		if debug { log.Printf("Client %d - Waiting response %d [done]", id, n) }
 		n++
 	}
 }
 
 func ready_to_work(id int, conn *Connection) {
-	log.Printf("Client %d ready to work...", id)
+	if debug { log.Printf("Client %d ready to work...", id) }
 	
 	p.subscribe <- conn
 	zap(id, conn)
@@ -68,7 +71,7 @@ func ready_to_work(id int, conn *Connection) {
 }
 
 func client(id int, host string, service int, origin string) {
-	log.Printf("Creating a new client id=%d to connect at %s:%d...", id, host, service)
+	if debug { log.Printf("Creating a new client id=%d to connect at %s:%d...", id, host, service) }
 	
 	orig := fmt.Sprintf("http://%s/", origin)
 	targ := fmt.Sprintf("ws://%s:%d/", host, service)
