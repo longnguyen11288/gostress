@@ -3,20 +3,28 @@ gostress - A clients/server websocket
 
 This program tests websocket capability.
 
+How it work:
+------------
+  A connected client send a command to the server, wait for a response, 
+when the client get a response from server it wait a time between 1 and 7200
+second to do the same process. This couple of programs was tested with more 
+than 500 000 connections without problem.
+
+Please report any suggest, bug or feature request :-)
+
    server:
       $> go run pool.go server.go
    clients:
       $> go run pool.go client.go
 
-
 Server
-======
+------
 Usage of ./server:
   -host="": Server listen host
   -port=8080: Server listen port
 
 Client
-======
+------
 Usage of ./client:
   -burst-intv=500: Interval between each bust of connections
   -burst-size=50: Number of concurent connections per bucket send
