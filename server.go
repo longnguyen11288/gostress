@@ -14,7 +14,7 @@ const SERVICE = 8080
 const HOST = ""
 const LISTEN_INTV = 400 * time.Millisecond
 
-const debug = true
+const debug = false
 
 var p = Pool {
 	connections: make(map[*Connection]bool),

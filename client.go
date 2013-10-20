@@ -20,7 +20,7 @@ const ORIGIN = "127.0.0.1"
 const MAX_SECOND = 7200
 
 
-const debug = true
+const debug = false
 
 
 var p = Pool {
