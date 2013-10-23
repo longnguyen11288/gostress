@@ -1,7 +1,10 @@
+ARCH=$(shell uname -m)
+PATH=bin/$(ARCH)
+
 build: build_client build_server
 
 build_client:
-	go build -o client pool.go client.go
+	go build -o $(PATH)/client pool.go client.go
 
 build_server:
-	go build -o server pool.go server.go
+	go build -o $(PATH)/server pool.go server.go
