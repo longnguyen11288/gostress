@@ -19,7 +19,7 @@ const debug = false
 var p = Pool {
 	connections: make(map[*Connection]bool),
 	subscribe: make(chan *Connection),
-	unsubscribe: make(chan *Connection),
+	unsubscribe: make(chan *Connection),	
 }
 
 
@@ -33,6 +33,7 @@ func serv(conn *Connection) {
 			break
 		}
 		if debug { log.Printf("Receives Message: %s", receive) }
+		p.IncrRecv()
 		
 		// message receive, responding to the client.
 		message := fmt.Sprintf("Response: [%s]", receive)
@@ -42,6 +43,7 @@ func serv(conn *Connection) {
 			break
 		}
 		if debug { log.Printf("Response sent.") }
+		p.IncrSend()
 
 		// A client sends a message in minimun every 1s.
 		// so we can wait before check for a new message.
@@ -61,7 +63,10 @@ func socketHandler(ws *websocket.Conn) {
 
 func displayStats() {
 	for {
-                fmt.Printf("connections: %d\n", len(p.connections))
+                fmt.Printf("Esta: %d, Recv: %d, Send: %d\n", 
+			len(p.connections),
+			p.nrecv,
+			p.nsend)
 		time.Sleep(1 * time.Second)
         }
 }

@@ -6,7 +6,7 @@ This program tests websocket capability.
 How it work:
 ------------
   A connected client send a command to the server, wait for a response, 
-when the client get a response from server it wait a time between 1 and 7200
+when the client get a response from server it wait a time between 1 and 3600
 second to do the same process. This couple of programs was tested with more 
 than 500 000 connections without problem.
 

@@ -13,11 +13,11 @@ import (
 
 const BURST_SIZE = 10
 const BURST_INTV = 100
-const CONNECTIONS = 1
+const CONNECTIONS = 100
 const SERVICE = 8080
 const HOST = "127.0.0.1"
 const ORIGIN = "127.0.0.1"
-const MAX_SECOND = 7200
+const MAX_SECOND = 3600
 
 
 const debug = false

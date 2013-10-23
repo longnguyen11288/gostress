@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sync/atomic"
         "code.google.com/p/go.net/websocket"
 )
 
@@ -13,6 +14,10 @@ type Pool struct {
 	
         subscribe chan *Connection
         unsubscribe chan *Connection
+	
+	// stats
+	nrecv uint64
+	nsend uint64
 }
 
 func (p *Pool) Dispatch() {
@@ -24,4 +29,12 @@ func (p *Pool) Dispatch() {
                         delete(p.connections, c);
                 }
         }
+}
+
+func (p *Pool) IncrRecv() {
+	atomic.AddUint64(&p.nrecv, 1)
+}
+
+func (p *Pool) IncrSend() {
+	atomic.AddUint64(&p.nsend, 1)
 }
