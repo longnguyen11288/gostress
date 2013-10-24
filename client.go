@@ -64,7 +64,7 @@ func ready_to_work(id int, conn *Connection) {
 	if debug { log.Printf("Client %d ready to work...", id) }
 	
 	p.subscribe <- conn
-	zap(id, conn)
+	//zap(id, conn)
 	p.unsubscribe <- conn
 	
 	conn.ws.Close()
