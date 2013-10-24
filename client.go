@@ -17,7 +17,7 @@ const CONNECTIONS = 100
 const SERVICE = 8080
 const HOST = "127.0.0.1"
 const ORIGIN = "127.0.0.1"
-const MAX_SECOND = 300
+const MAX_SECOND = 100000
 
 
 const debug = false
@@ -64,7 +64,7 @@ func ready_to_work(id int, conn *Connection) {
 	if debug { log.Printf("Client %d ready to work...", id) }
 	
 	p.subscribe <- conn
-	//zap(id, conn)
+	zap(id, conn)
 	p.unsubscribe <- conn
 	
 	conn.ws.Close()
