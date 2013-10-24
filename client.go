@@ -17,7 +17,7 @@ const CONNECTIONS = 100
 const SERVICE = 8080
 const HOST = "127.0.0.1"
 const ORIGIN = "127.0.0.1"
-const MAX_SECOND = 300
+const MAX_SECOND = 900
 
 
 const debug = false
