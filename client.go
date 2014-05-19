@@ -84,7 +84,7 @@ func client(id int, host string, service int, origin string) {
 	var conn = &Connection {
 		ws: ws,
         }
-	go ready_to_work(id, conn)
+	ready_to_work(id, conn)
 }
 
 func simulate(
