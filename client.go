@@ -100,7 +100,7 @@ func simulate(
 			if *connid >= connections {
 				break
 			}
-			client(*connid, host, service, origin)
+			go client(*connid, host, service, origin)
 			*connid++
 		}
 		time.Sleep(time.Duration(burst_intv) * time.Millisecond)
