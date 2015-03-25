@@ -1,15 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"time"
 	"flag"
-	"math/rand"
+	"fmt"
 	"log"
+	"time"
 
 	"code.google.com/p/go.net/websocket"
 )
-
 
 const BURST_SIZE = 10
 const BURST_INTV = 100
@@ -17,83 +15,77 @@ const CONNECTIONS = 100
 const SERVICE = 8080
 const HOST = "127.0.0.1"
 const ORIGIN = "127.0.0.1"
-const MAX_SECOND = 100000
-
+const MAX_SECOND = 1
 
 const debug = false
 
-
-var p = Pool {
+var p = Pool{
 	connections: make(map[*Connection]bool),
-	subscribe: make(chan *Connection),
+	subscribe:   make(chan *Connection),
 	unsubscribe: make(chan *Connection),
 }
-
 
 func zap(id int, conn *Connection) {
 	n := 0
 	for {
-		time.Sleep(time.Duration(rand.Intn(MAX_SECOND)) * time.Second)
-		
+		time.Sleep(time.Duration(100 * time.Microsecond))
+
 		// sending a message...
-		if debug { log.Printf("Client %d - Sending %d...", id, n) }
-		message := fmt.Sprintf("Client: %d, Zap: %d", id, n)
-		err := websocket.Message.Send(conn.ws, message)		
+		if debug {
+			log.Printf(`{"Client": %d, "Sending": %d}`, id, n)
+		}
+		message := fmt.Sprintf(`{"Client": %d, "Sending": %d}`, id, n)
+		err := websocket.Message.Send(conn.ws, message)
 		if err != nil {
 			fmt.Printf("Send Error: %s\n", err)
 			break
 		}
-		if debug { log.Printf("Client %d - Sending %d [done]", id, n) }
-		
-		// waiting for the response...
-		if debug { log.Printf("Client %d - Waiting response %d...", id, n) }
-		for {
-			var response string
-			err = websocket.Message.Receive(conn.ws, &response)
-			if err != nil {
-				fmt.Printf("Receive Error: %s\n", err)
-			}
-			break
+		if debug {
+			log.Printf("Client %d - Sending %d [done]", id, n)
 		}
-		if debug { log.Printf("Client %d - Waiting response %d [done]", id, n) }
 		n++
 	}
 }
 
 func ready_to_work(id int, conn *Connection) {
-	if debug { log.Printf("Client %d ready to work...", id) }
-	
+	if debug {
+		log.Printf("Client %d ready to work...", id)
+	}
+
 	p.subscribe <- conn
 	zap(id, conn)
 	p.unsubscribe <- conn
-	
+
 	conn.ws.Close()
 }
 
 func client(id int, host string, service int, origin string) {
-	if debug { log.Printf("Creating a new client id=%d to connect at %s:%d...", id, host, service) }
-	
+	if debug {
+		log.Printf("Creating a new client id=%d to connect at %s:%d...", id, host, service)
+	}
+
 	orig := fmt.Sprintf("http://%s/", origin)
-	targ := fmt.Sprintf("ws://%s:%d/", host, service)
-	
-	ws, err := websocket.Dial(targ, "", orig)
+	targ := fmt.Sprintf("wss://%s:%d/ws", host, service)
+	config, _ := websocket.NewConfig(targ, orig)
+	config.Header.Add("Authorization", "Bearer eW91ci1zZWNyZXQtaGVyZQ==")
+	ws, err := websocket.DialConfig(config)
 	if err != nil {
 		fmt.Printf("Dial Error for client: %d: %s\n", id, err)
 		return
 	}
-	var conn = &Connection {
+	var conn = &Connection{
 		ws: ws,
-        }
+	}
 	ready_to_work(id, conn)
 }
 
 func simulate(
-	connid *int, 
-	connections int, 
-	host string, 
-	service int, 
-	origin string, 
-	burst_size int, 
+	connid *int,
+	connections int,
+	host string,
+	service int,
+	origin string,
+	burst_size int,
 	burst_intv int) {
 	for {
 		for y := 0; y < burst_size; y++ {
@@ -109,45 +101,43 @@ func simulate(
 
 func main() {
 	var connections = flag.Int(
-		"connections", 
-		CONNECTIONS, 
+		"connections",
+		CONNECTIONS,
 		"Number of concurent connections")
 	var host = flag.String(
-		"host", 
-		HOST, 
+		"host",
+		HOST,
 		"Server host")
-	var port = 
-		flag.Int(
-		"port", 
-		SERVICE, 
+	var port = flag.Int(
+		"port",
+		SERVICE,
 		"Server port")
 	var origin = flag.String(
-		"origin", 
-		HOST, 
+		"origin",
+		HOST,
 		"Client origin")
 	var burst_size = flag.Int(
-		"burst-size", 
-		BURST_SIZE, 
+		"burst-size",
+		BURST_SIZE,
 		"Number of concurent connections per bucket send")
 	var burst_intv = flag.Int(
-		"burst-intv", 
-		BURST_INTV, 
+		"burst-intv",
+		BURST_INTV,
 		"Interval between each bust of connections")
-	
+
 	flag.Parse()
-	
+
 	go p.Dispatch()
-	
+
 	var connid = 0
-	go simulate(&connid, 
-		*connections, 
-		*host, 
-		*port, 
-		*origin, 
-		*burst_size, 
-		*burst_intv);
-	
-	
+	go simulate(&connid,
+		*connections,
+		*host,
+		*port,
+		*origin,
+		*burst_size,
+		*burst_intv)
+
 	fmt.Printf("Wait for initialization...\n")
 	for {
 		time.Sleep(200 * time.Millisecond)
